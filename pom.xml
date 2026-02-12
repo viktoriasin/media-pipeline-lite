@@ -32,7 +32,6 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <!-- In-memory DB для простоты -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -42,7 +41,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <!-- Prometheus metrics -->
+
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
