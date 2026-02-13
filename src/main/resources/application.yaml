@@ -1,23 +1,71 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: media-pipeline-lite
+
   datasource:
-    url: jdbc:h2:mem:mediadb
+    url: jdbc:h2:mem:mediapipeline
     driver-class-name: org.h2.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: false
+    username: sa
+    password:
+
   h2:
     console:
       enabled: true
-      path: /h2
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+
+server:
+  port: 8080
 
 management:
   endpoints:
     web:
-    exposure:
-      include: health,prometheus,metrics
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+
+media-pipeline:
+  segment-duration-seconds: 6
+  hls:
+    master-playlist-name: master.m3u8
+    media-playlist-name: playlist.m3u8
+  quality-profiles:
+    - height: 480
+      width: 854
+      bitrate: 1500000
+      codecs: "avc1.42E01E,mp4a.40.2"
+      level: "3.0"
+    - height: 720
+      width: 1280
+      bitrate: 3000000
+      codecs: "avc1.4D401F,mp4a.40.2"
+      level: "3.1"
+    - height: 1080
+      width: 1920
+      bitrate: 6000000
+      codecs: "avc1.640028,mp4a.40.2"
+      level: "4.0"
+    - height: 2160
+      width: 3840
+      bitrate: 15000000
+      codecs: "avc1.640033,mp4a.40.2"
+      level: "5.1"
