@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Pipeline Lite - HLS плеер</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .content-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .content-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .player-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .player-container.active {
+            display: block;
+        }
+
+        video {
+            width: 100%;
+            max-height: 600px;
+            background: #000;
+            border-radius: 8px;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .player-title {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .close-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .close-btn:hover {
+            background: #ee5a6f;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .control-group select, .control-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .skip-button {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            display: none;
+            z-index: 1000;
+        }
+
+        .skip-button.visible {
+            display: block;
+        }
+
+        .skip-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .timeline {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .timeline h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .timeline-event {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .timeline-event:hover {
+            background: #e9ecef;
+        }
+
+        .timeline-event.intro {
+            border-left-color: #f39c12;
+        }
+
+        .timeline-event.credits {
+            border-left-color: #e74c3c;
+        }
+
+        .metrics {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .metrics h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .metric-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .grade {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .grade.excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .grade.good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .grade.fair {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .grade.poor {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #0c5460;
+            margin: 5px 0;
+        }
+
+        .quality-selector {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .quality-selector h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .quality-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quality-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .quality-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .quality-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .quality-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🎬 Media Pipeline Lite</h1>
+        <p class="subtitle">Обучающий HLS стриминг с ABR и QoE аналитикой</p>
+    </header>
+
+    <div id="contentList" class="content-grid"></div>
+
+    <div id="playerContainer" class="player-container">
+        <div class="player-header">
+            <h2 class="player-title" id="playerTitle"></h2>
+            <button class="close-btn" onclick="closePlayer()">Закрыть плеер</button>
+        </div>
+
+        <div style="position: relative;">
+            <video id="video" controls></video>
+            <button id="skipButton" class="skip-button" onclick="skipIntro()">Пропустить вступление ⏩</button>
+        </div>
+
+        <div class="quality-selector">
+            <h3>🎬 Качество видео</h3>
+            <div class="quality-buttons">
+                <button class="quality-btn" onclick="setQuality(-1)" id="quality-auto">Auto</button>
+                <button class="quality-btn" onclick="setQuality(480)" id="quality-480">480p</button>
+                <button class="quality-btn" onclick="setQuality(720)" id="quality-720">720p</button>
+                <button class="quality-btn" onclick="setQuality(1080)" id="quality-1080">1080p</button>
+                <button class="quality-btn" onclick="setQuality(2160)" id="quality-2160">2160p (4K)</button>
+            </div>
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+
+        <div class="metrics" id="metrics">
+            <h3>📊 QoE метрики</h3>
+            <div class="metrics-grid" id="metricsGrid"></div>
+        </div>
+
+        <div class="info-box">
+            <p><strong>ID сессии:</strong> <span id="sessionId"></span></p>
+            <p><strong>Текущее качество:</strong> <span id="currentQuality">-</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let hls;
+    let currentSession = null;
+    let currentTimeline = [];
+    let analyticsInterval = null;
+
+    // Загрузка доступного контента
+    async function loadContent() {
+        const response = await fetch('/api/content');
+        const content = await response.json();
+        const container = document.getElementById('contentList');
+
+        container.innerHTML = content.map(item => `
+            <div class="content-card" onclick="startPlayback(${item.id}, '${item.title}')">
+                <h3>${item.title}</h3>
+                <p>Длительность: ${Math.floor(item.durationSeconds / 60)} минут</p>
+            </div>
+        `).join('');
+    }
+
+    async function startPlayback(contentId, title) {
+        const response = await fetch('/api/playback/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contentId })
+        });
+
+        const data = await response.json();
+        currentSession = data;
+        currentTimeline = data.timeline;
+
+        document.getElementById('playerTitle').textContent = title;
+        document.getElementById('sessionId').textContent = data.sessionId;
+        document.getElementById('contentList').style.display = 'none';
+        document.getElementById('playerContainer').classList.add('active');
+
+        renderTimeline();
+        initPlayer(data.masterPlaylistUrl);
+        startAnalytics();
+        sendEvent('START');
+    }
+
+    function renderTimeline() {
+        const container = document.getElementById('timeline');
+        container.innerHTML = '<h3>📍 Таймлайн</h3>' +
+            currentTimeline.map(event => `
+                <div class="timeline-event ${event.type.toLowerCase()}"
+                     onclick="seekTo(${event.startTimeSeconds})">
+                    <strong>${event.label}</strong>
+                    ${formatTime(event.startTimeSeconds)} - ${formatTime(event.endTimeSeconds)}
+                    ${event.skippable ? ' 🔄' : ''}
+                </div>
+            `).join('');
+    }
+
+    function initPlayer(manifestUrl) {
+        const video = document.getElementById('video');
+        const fullUrl = window.location.origin + manifestUrl;
+
+        if (Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(fullUrl);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                // Видео готово к воспроизведению, обновляем кнопки качества
+                updateQualityButtons();
+            });
+
+            hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+                const level = hls.levels[data.level];
+                document.getElementById('currentQuality').textContent = level.height + 'p';
+                updateQualityButtons();
+                sendEvent('QUALITY_CHANGE', { qualityHeight: level.height });
+            });
+
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                if (data.fatal) {
+                    sendEvent('ERROR', {
+                        errorCode: data.type,
+                        errorMessage: data.details
+                    });
+                }
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = fullUrl;
+        }
+
+        video.addEventListener('timeupdate', handleTimeUpdate);
+        video.addEventListener('waiting', () => {
+            const bufferStart = Date.now();
+            video.addEventListener('playing', () => {
+                const bufferDuration = Date.now() - bufferStart;
+                sendEvent('BUFFER', { bufferDurationMs: bufferDuration });
+            }, { once: true });
+        });
+        video.addEventListener('ended', () => sendEvent('END'));
+        video.addEventListener('pause', () => sendEvent('PAUSE'));
+        video.addEventListener('play', () => sendEvent('PLAY'));
+    }
+
+    function setQuality(levelIndex) {
+        if (!hls) return;
+
+        // levelIndex: -1 для Auto, или высота качества (480, 720, 1080, 2160)
+        if (levelIndex === -1) {
+            // Включить автоматический выбор
+            hls.currentLevel = -1;
+        } else {
+            // Найти индекс уровня по высоте
+            const targetHeight = levelIndex;
+            const levelIdx = hls.levels.findIndex(level => level.height === targetHeight);
+            if (levelIdx !== -1) {
+                hls.currentLevel = levelIdx;
+            } else {
+                console.warn(`Quality level ${targetHeight}p not available in stream`);
+                return; // Не обновляем кнопки если уровень не найден
+            }
+        }
+        updateQualityButtons();
+    }
+
+    function updateQualityButtons() {
+        if (!hls || !hls.levels.length) return;
+
+        // Получаем список доступных высот качества
+        const availableHeights = new Set(hls.levels.map(level => level.height));
+
+        // Убираем active класс со всех кнопок и обновляем состояние disabled
+        document.querySelectorAll('.quality-btn').forEach(btn => {
+            btn.classList.remove('active');
+
+            // Проверяем доступность качества (кроме Auto)
+            const btnId = btn.id;
+            if (btnId !== 'quality-auto') {
+                const height = parseInt(btnId.replace('quality-', ''));
+                btn.disabled = !availableHeights.has(height);
+            }
+        });
+
+        // Добавляем active класс на текущую кнопку
+        if (hls.autoLevelEnabled) {
+            document.getElementById('quality-auto').classList.add('active');
+        } else {
+            const currentLevel = hls.levels[hls.currentLevel];
+            if (currentLevel) {
+                const height = currentLevel.height;
+                const buttonId = `quality-${height}`;
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    button.classList.add('active');
+                }
+            }
+        }
+    }
+
+    function handleTimeUpdate() {
+        const video = document.getElementById('video');
+        const currentTime = video.currentTime;
+        const skipButton = document.getElementById('skipButton');
+
+        // Проверка нахождения в пропускаемом отрезке
+        const currentEvent = currentTimeline.find(e =>
+            e.skippable &&
+            currentTime >= e.startTimeSeconds &&
+            currentTime <= e.endTimeSeconds
+        );
+
+        if (currentEvent) {
+            skipButton.classList.add('visible');
+            skipButton.dataset.endTime = currentEvent.endTimeSeconds;
+        } else {
+            skipButton.classList.remove('visible');
+        }
+    }
+
+    function skipIntro() {
+        const video = document.getElementById('video');
+        const endTime = parseFloat(document.getElementById('skipButton').dataset.endTime);
+        video.currentTime = endTime;
+        sendEvent('SKIP_INTRO', { playbackTimeSeconds: video.currentTime });
+    }
+
+    function seekTo(seconds) {
+        const video = document.getElementById('video');
+        video.currentTime = seconds;
+        sendEvent('SEEK', { playbackTimeSeconds: seconds });
+    }
+
+    async function sendEvent(eventType, extraData = {}) {
+        if (!currentSession) return;
+
+        const video = document.getElementById('video');
+        await fetch('/api/analytics/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: currentSession.sessionId,
+                eventType: eventType,
+                playbackTimeSeconds: video.currentTime || 0,
+                ...extraData
+            })
+        });
+    }
+
+    function startAnalytics() {
+        // Отправка heartbeat каждые 10 секунд
+        analyticsInterval = setInterval(() => {
+            sendEvent('HEARTBEAT');
+            updateMetrics();
+        }, 10000);
+    }
+
+    async function updateMetrics() {
+        if (!currentSession) return;
+
+        const response = await fetch(`/api/analytics/session/${currentSession.sessionId}/qoe`);
+        const metrics = await response.json();
+
+        const gradeClass = metrics.grade.toLowerCase();
+        document.getElementById('metricsGrid').innerHTML = `
+            <div class="metric-item">
+                <div class="metric-value">${(metrics.bufferRatio * 100).toFixed(2)}%</div>
+                <div class="metric-label">Buffer Ratio</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${(metrics.totalBufferTimeMs / 1000).toFixed(1)}s</div>
+                <div class="metric-label">Время буферизации</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${metrics.errorCount}</div>
+                <div class="metric-label">Ошибки</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${metrics.qualityChanges}</div>
+                <div class="metric-label">Смена качества</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value"><span class="grade ${gradeClass}">${metrics.grade}</span></div>
+                <div class="metric-label">Оценка QoE</div>
+            </div>
+        `;
+    }
+
+    function closePlayer() {
+        if (hls) {
+            hls.destroy();
+        }
+        if (analyticsInterval) {
+            clearInterval(analyticsInterval);
+        }
+        document.getElementById('video').pause();
+        document.getElementById('playerContainer').classList.remove('active');
+        document.getElementById('contentList').style.display = 'grid';
+        currentSession = null;
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Загрузка контента при загрузке страницы
+    loadContent();
+</script>
+</body>
+</html>
