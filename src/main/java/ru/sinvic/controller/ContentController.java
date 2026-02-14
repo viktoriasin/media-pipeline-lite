@@ -20,9 +20,10 @@ public class ContentController {
         this.contentRepository = contentRepository;
     }
 
+    // TODO: убрать timeline из выдачи
     @GetMapping
     public ResponseEntity<List<Content>> getAllContent() {
-        return ResponseEntity.ok(contentRepository.findAll());
+        return ResponseEntity.ok(contentRepository.findAllWithTimeline());
     }
 
     @GetMapping("/{id}")
