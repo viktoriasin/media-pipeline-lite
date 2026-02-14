@@ -1,12 +1,10 @@
-package com.kinopoisk.mediapipeline.domain;
+package ru.sinvic.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.sinvic.domain.AnalyticsEvent;
-import ru.sinvic.domain.Content;
 
 import java.time.Instant;
 import java.util.ArrayList;

@@ -23,7 +23,7 @@ public class AnalyticsEvent {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
-    private com.kinopoisk.mediapipeline.domain.PlaybackSession session;
+    private PlaybackSession session;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)
