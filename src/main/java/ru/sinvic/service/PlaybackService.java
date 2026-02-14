@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sinvic.domain.Content;
 import ru.sinvic.domain.PlaybackSession;
+import ru.sinvic.dto.StartPlaybackRequest;
+import ru.sinvic.dto.StartPlaybackResponse;
+import ru.sinvic.dto.TimelineEventDto;
 import ru.sinvic.repository.ContentRepository;
 import ru.sinvic.repository.PlaybackSessionRepository;
 
@@ -40,7 +43,6 @@ public class PlaybackService {
 
         sessionRepository.save(session);
 
-        // Возвращаем динамический master playlist с всеми качествами
         String masterPlaylistUrl = String.format(
             "/api/playback/session/%s/master.m3u8",
             sessionId

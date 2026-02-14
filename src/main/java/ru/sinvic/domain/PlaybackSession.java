@@ -48,6 +48,12 @@ public class PlaybackSession {
         lastActivityAt = Instant.now();
     }
 
+    public PlaybackSession(String sessionId, Content content, DeviceType deviceType) {
+        this.sessionId = sessionId;
+        this.content = content;
+        this.deviceType = deviceType;
+    }
+
     public void updateActivity() {
         this.lastActivityAt = Instant.now();
     }
