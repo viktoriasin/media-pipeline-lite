@@ -9,19 +9,18 @@ import ru.sinvic.dto.QoeMetricsResponse;
 import ru.sinvic.service.AnalyticsService;
 
 @RestController
-@RequestMapping("/api/analytics")
 @RequiredArgsConstructor
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
 
-    @PostMapping("/event")
+    @PostMapping("/api/analytics/event")
     public ResponseEntity<Void> recordEvent(@Valid @RequestBody AnalyticsEventRequest request) {
         analyticsService.recordEvent(request);
         return ResponseEntity.accepted().build();
     }
 
-    @GetMapping("/session/{sessionId}/qoe")
+    @GetMapping("/api/analytics/session/{sessionId}/qoe")
     public ResponseEntity<QoeMetricsResponse> getQoeMetrics(@PathVariable String sessionId) {
         QoeMetricsResponse metrics = analyticsService.calculateQoeMetrics(sessionId);
         return ResponseEntity.ok(metrics);

@@ -13,7 +13,6 @@ import ru.sinvic.service.ManifestService;
 import ru.sinvic.service.PlaybackService;
 
 @RestController
-@RequestMapping("/api/playback")
 public class PlaybackController {
 
     private final PlaybackService playbackService;
@@ -24,7 +23,7 @@ public class PlaybackController {
         this.manifestService = manifestService;
     }
 
-    @PostMapping("/start")
+    @PostMapping("/api/playback/start")
     public ResponseEntity<StartPlaybackResponse> startPlayback(
         @Valid @RequestBody StartPlaybackRequest request
     ) {
@@ -32,7 +31,7 @@ public class PlaybackController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/session/{sessionId}/master.m3u8", produces = "application/vnd.apple.mpegurl")
+    @GetMapping(value = "/api/playback/session/{sessionId}/master.m3u8", produces = "application/vnd.apple.mpegurl")
     public ResponseEntity<String> getMasterPlaylist(@PathVariable String sessionId) {
         PlaybackSession session = playbackService.getSession(sessionId);
         String manifest = manifestService.generateMasterPlaylist(session);
