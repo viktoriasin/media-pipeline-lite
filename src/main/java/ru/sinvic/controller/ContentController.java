@@ -1,34 +1,32 @@
 package ru.sinvic.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.sinvic.domain.Content;
-import ru.sinvic.repository.ContentRepository;
+import ru.sinvic.dto.ContentDto;
+import ru.sinvic.service.ContentService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/content")
+@RequiredArgsConstructor
 public class ContentController {
 
-    private final ContentRepository contentRepository;
-
-    public ContentController(ContentRepository contentRepository) {
-        this.contentRepository = contentRepository;
-    }
+    private final ContentService contentService;
 
     // TODO: убрать timeline из выдачи
     @GetMapping
-    public ResponseEntity<List<Content>> getAllContent() {
-        return ResponseEntity.ok(contentRepository.findAllWithTimeline());
+    public ResponseEntity<List<ContentDto>> getAllContent() {
+        return ResponseEntity.ok(contentService.getAllContent());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Content> getContent(@PathVariable Long id) {
-        return contentRepository.findByIdWithTimeline(id)
+    public ResponseEntity<ContentDto> getContent(@PathVariable Long id) {
+        return contentService.getContent(id)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
     }

@@ -380,7 +380,6 @@
     let currentTimeline = [];
     let analyticsInterval = null;
 
-    // Загрузка доступного контента
     async function loadContent() {
         const response = await fetch('/api/content');
         const content = await response.json();
