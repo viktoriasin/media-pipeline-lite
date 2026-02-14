@@ -6,6 +6,11 @@ import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.sinvic.domain.PlaybackSession;
+import ru.sinvic.dto.StartPlaybackRequest;
+import ru.sinvic.dto.StartPlaybackResponse;
+import ru.sinvic.service.ManifestService;
+import ru.sinvic.service.PlaybackService;
 
 @RestController
 @RequestMapping("/api/playback")
@@ -29,7 +34,7 @@ public class PlaybackController {
 
     @GetMapping(value = "/session/{sessionId}/master.m3u8", produces = "application/vnd.apple.mpegurl")
     public ResponseEntity<String> getMasterPlaylist(@PathVariable String sessionId) {
-        com.kinopoisk.mediapipeline.domain.PlaybackSession session = playbackService.getSession(sessionId);
+        PlaybackSession session = playbackService.getSession(sessionId);
         String manifest = manifestService.generateMasterPlaylist(session);
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType("application/vnd.apple.mpegurl"))
