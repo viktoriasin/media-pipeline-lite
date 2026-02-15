@@ -1,5 +1,6 @@
 package ru.sinvic.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +24,6 @@ public class ContentController {
 
     @GetMapping("/api/content/{id}")
     public ResponseEntity<ContentDto> getContent(@PathVariable Long id) {
-        return contentService.getContent(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(contentService.getContent(id));
     }
 }

@@ -1,6 +1,7 @@
 package ru.sinvic.service;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sinvic.domain.Content;
@@ -8,30 +9,23 @@ import ru.sinvic.domain.PlaybackSession;
 import ru.sinvic.dto.StartPlaybackRequest;
 import ru.sinvic.dto.StartPlaybackResponse;
 import ru.sinvic.dto.TimelineEventDto;
-import ru.sinvic.exception.ContentNotFoundException;
 import ru.sinvic.exception.SessionNotFoundException;
-import ru.sinvic.repository.ContentRepository;
 import ru.sinvic.repository.PlaybackSessionRepository;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PlaybackService {
 
-    private final ContentRepository contentRepository;
+    private final ContentService contentService;
     private final PlaybackSessionRepository sessionRepository;
-
-    public PlaybackService(ContentRepository contentRepository,
-                           PlaybackSessionRepository sessionRepository) {
-        this.contentRepository = contentRepository;
-        this.sessionRepository = sessionRepository;
-    }
 
     @Transactional
     public StartPlaybackResponse startPlayback(StartPlaybackRequest request) {
-        Content content = contentRepository.findByIdWithTimeline(request.contentId())
-            .orElseThrow(() -> new ContentNotFoundException("Content not found: " + request.contentId()));
+        Content content = contentService.getContent(request.contentId())
+            .toDomain();
 
         String sessionId = UUID.randomUUID().toString();
 
