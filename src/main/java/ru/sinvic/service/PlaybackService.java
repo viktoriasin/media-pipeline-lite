@@ -8,6 +8,8 @@ import ru.sinvic.domain.PlaybackSession;
 import ru.sinvic.dto.StartPlaybackRequest;
 import ru.sinvic.dto.StartPlaybackResponse;
 import ru.sinvic.dto.TimelineEventDto;
+import ru.sinvic.exception.ContentNotFoundException;
+import ru.sinvic.exception.SessionNotFoundException;
 import ru.sinvic.repository.ContentRepository;
 import ru.sinvic.repository.PlaybackSessionRepository;
 
@@ -29,7 +31,7 @@ public class PlaybackService {
     @Transactional
     public StartPlaybackResponse startPlayback(StartPlaybackRequest request) {
         Content content = contentRepository.findByIdWithTimeline(request.contentId())
-            .orElseThrow(() -> new IllegalArgumentException("Content not found: " + request.contentId()));
+            .orElseThrow(() -> new ContentNotFoundException("Content not found: " + request.contentId()));
 
         String sessionId = UUID.randomUUID().toString();
 
@@ -62,6 +64,6 @@ public class PlaybackService {
     @Transactional(readOnly = true)
     public PlaybackSession getSession(String sessionId) {
         return sessionRepository.findBySessionId(sessionId)
-            .orElseThrow(() -> new IllegalArgumentException("Session not found: " + sessionId));
+            .orElseThrow(() -> new SessionNotFoundException("Session not found: " + sessionId));
     }
 }
