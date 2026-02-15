@@ -29,8 +29,8 @@ public class Content {
     @Column(name = "duration_seconds", nullable = false)
     private Integer durationSeconds;
 
-    @Column(name = "base_url", nullable = false)
-    private String baseUrl;
+    @Column(name = "content_path", nullable = false)
+    private String contentPath;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimelineEvent> timeline = new ArrayList<>();

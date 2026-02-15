@@ -1,16 +1,19 @@
 package ru.sinvic.dto;
 
 import ru.sinvic.domain.Content;
+import ru.sinvic.domain.TimelineEvent;
 
-public record ContentDto (long id, String title, Integer durationSeconds, String baseUrl) {
+import java.util.List;
+
+public record ContentDto (long id, String title, Integer durationSeconds, String contentPath, List<TimelineEvent> timeline) {
 
     public ContentDto {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("title must not be empty");
         }
 
-        if (baseUrl == null || baseUrl.isBlank()) {
-            throw new IllegalArgumentException("baseUrl must not be empty");
+        if (contentPath == null || contentPath.isBlank()) {
+            throw new IllegalArgumentException("contentPath must not be empty");
         }
 
         if (durationSeconds == null || durationSeconds <= 0) {
@@ -19,7 +22,7 @@ public record ContentDto (long id, String title, Integer durationSeconds, String
     }
 
     public static ContentDto from(Content content) {
-        return new ContentDto(content.getId(), content.getTitle(), content.getDurationSeconds(), content.getBaseUrl());
+        return new ContentDto(content.getId(), content.getTitle(), content.getDurationSeconds(), content.getContentPath(), content.getTimeline());
     }
 
     public Content toDomain() {
@@ -27,7 +30,8 @@ public record ContentDto (long id, String title, Integer durationSeconds, String
         content.setId(this.id);
         content.setTitle(this.title);
         content.setDurationSeconds(this.durationSeconds);
-        content.setBaseUrl(this.baseUrl);
+        content.setContentPath(this.contentPath);
+        content.setTimeline(this.timeline);
         return content;
     }
 }

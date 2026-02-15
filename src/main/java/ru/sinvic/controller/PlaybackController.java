@@ -1,7 +1,5 @@
 package ru.sinvic.controller;
 
-
-
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +32,8 @@ public class PlaybackController {
     @GetMapping(value = "/api/playback/session/{sessionId}/master.m3u8", produces = "application/vnd.apple.mpegurl")
     public ResponseEntity<String> getMasterPlaylist(@PathVariable String sessionId) {
         PlaybackSession session = playbackService.getSession(sessionId);
-        String manifest = manifestService.generateMasterPlaylist(session);
+        String contentPath = session.getContent().getContentPath();
+        String manifest = manifestService.generateMasterPlaylist(contentPath);
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType("application/vnd.apple.mpegurl"))
             .body(manifest);

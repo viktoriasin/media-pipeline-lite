@@ -1,4 +1,4 @@
-INSERT INTO content (id, title, duration_seconds, base_url) VALUES
+INSERT INTO content (id, title, duration_seconds, content_path) VALUES
 (1, 'Big Buck Bunny', 120, '/content/demo');
 
 INSERT INTO timeline_event (content_id, type, start_time_seconds, end_time_seconds, label, skippable) VALUES
