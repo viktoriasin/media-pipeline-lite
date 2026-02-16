@@ -31,7 +31,6 @@ public class AnalyticsService {
         this.sessionRepository = sessionRepository;
         this.meterRegistry = meterRegistry;
 
-        // Инициализация счетчиков Prometheus
         this.eventsCounter = Counter.builder("playback.events.total")
             .description("Общее количество событий воспроизведения")
             .register(meterRegistry);
@@ -40,7 +39,6 @@ public class AnalyticsService {
             .description("Общее количество ошибок воспроизведения")
             .register(meterRegistry);
 
-        // Регистрация gauge для активных сессий
         meterRegistry.gauge("playback.sessions.active", this, service -> {
             Instant fiveMinutesAgo = Instant.now().minus(5, ChronoUnit.MINUTES);
             return sessionRepository.countActiveSessions(fiveMinutesAgo);
@@ -65,7 +63,6 @@ public class AnalyticsService {
         eventRepository.save(event);
         sessionRepository.save(session);
 
-        // Обновление метрик Prometheus
         eventsCounter.increment();
         meterRegistry.counter("playback.events.by.type",
             "type", request.eventType().name()).increment();
@@ -92,7 +89,6 @@ public class AnalyticsService {
             .mapToLong(e -> e.getBufferDurationMs() != null ? e.getBufferDurationMs() : 0)
             .sum();
 
-        // Расчет времени воспроизведения от START до END (или последнего события)
         long totalPlayTimeMs = calculatePlayTimeMs(events);
 
         int errorCount = (int) events.stream()

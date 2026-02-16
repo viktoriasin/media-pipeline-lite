@@ -438,7 +438,6 @@
             hls.attachMedia(video);
 
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                // Видео готово к воспроизведению, обновляем кнопки качества
                 updateQualityButtons();
             });
 
@@ -477,12 +476,10 @@
     function setQuality(levelIndex) {
         if (!hls) return;
 
-        // levelIndex: -1 для Auto, или высота качества (480, 720, 1080, 2160)
+        // если -1, то будет автоматическая настройка качества
         if (levelIndex === -1) {
-            // Включить автоматический выбор
             hls.currentLevel = -1;
         } else {
-            // Найти индекс уровня по высоте
             const targetHeight = levelIndex;
             const levelIdx = hls.levels.findIndex(level => level.height === targetHeight);
             if (levelIdx !== -1) {
@@ -498,14 +495,11 @@
     function updateQualityButtons() {
         if (!hls || !hls.levels.length) return;
 
-        // Получаем список доступных высот качества
         const availableHeights = new Set(hls.levels.map(level => level.height));
 
-        // Убираем active класс со всех кнопок и обновляем состояние disabled
         document.querySelectorAll('.quality-btn').forEach(btn => {
             btn.classList.remove('active');
 
-            // Проверяем доступность качества (кроме Auto)
             const btnId = btn.id;
             if (btnId !== 'quality-auto') {
                 const height = parseInt(btnId.replace('quality-', ''));
@@ -513,7 +507,6 @@
             }
         });
 
-        // Добавляем active класс на текущую кнопку
         if (hls.autoLevelEnabled) {
             document.getElementById('quality-auto').classList.add('active');
         } else {
@@ -534,7 +527,6 @@
         const currentTime = video.currentTime;
         const skipButton = document.getElementById('skipButton');
 
-        // Проверка нахождения в пропускаемом отрезке
         const currentEvent = currentTimeline.find(e =>
             e.skippable &&
             currentTime >= e.startTimeSeconds &&
@@ -579,7 +571,6 @@
     }
 
     function startAnalytics() {
-        // Отправка heartbeat каждые 10 секунд
         analyticsInterval = setInterval(() => {
             sendEvent('HEARTBEAT');
             updateMetrics();
@@ -636,7 +627,6 @@
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Загрузка контента при загрузке страницы
     loadContent();
 </script>
 </body>
