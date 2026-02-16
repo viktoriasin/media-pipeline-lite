@@ -9,8 +9,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: проверить нужен ли здест конструктор со всеми значениями (jpa)
-
 @Entity
 @Table(name = "content")
 @Getter

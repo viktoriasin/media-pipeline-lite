@@ -30,7 +30,6 @@ public class ManifestService {
             ));
             m3u8.append(String.format("%s/%dp/playlist.m3u8\n\n", contentPath, profile.getHeight()));
         }
-        System.out.println(m3u8);
         return m3u8.toString();
     }
 }
