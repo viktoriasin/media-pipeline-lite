@@ -57,7 +57,7 @@ public class PlaybackService {
 
     @Transactional(readOnly = true)
     public PlaybackSession getSession(String sessionId) {
-        return sessionRepository.findBySessionId(sessionId)
+        return sessionRepository.findBySessionId(sessionId) // TODO: Redis?
             .orElseThrow(() -> new SessionNotFoundException("Session not found: " + sessionId));
     }
 }
