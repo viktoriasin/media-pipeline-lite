@@ -1,6 +1,7 @@
 package ru.sinvic.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,15 +12,11 @@ import ru.sinvic.service.ManifestService;
 import ru.sinvic.service.PlaybackService;
 
 @RestController
+@RequiredArgsConstructor
 public class PlaybackController {
 
     private final PlaybackService playbackService;
     private final ManifestService manifestService;
-
-    public PlaybackController(PlaybackService playbackService, ManifestService manifestService) {
-        this.playbackService = playbackService;
-        this.manifestService = manifestService;
-    }
 
     @PostMapping("/api/playback/start")
     public ResponseEntity<StartPlaybackResponse> startPlayback(
