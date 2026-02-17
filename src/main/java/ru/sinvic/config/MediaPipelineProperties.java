@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: проверить ситуации как будет работать если будут использованы поля по умолчанию
-
 @Component
 @ConfigurationProperties(prefix = "media-pipeline")
 public class MediaPipelineProperties {
