@@ -85,6 +85,29 @@ services:
     networks:
       - media-pipeline-network
 
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    networks:
+      - media-pipeline-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
 networks:
   media-pipeline-network:
     driver: bridge
@@ -92,3 +115,4 @@ networks:
 volumes:
   prometheus-data:
   grafana-data:
+  redis-data:

@@ -28,6 +28,29 @@ spring:
       mode: always
       data-locations: classpath:data.sql
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: 2000ms
+
+      timeout: 3000ms
+      connect-timeout: 5000ms
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "media-pipeline:"
+
   kafka:
     bootstrap-servers: localhost:9092
 
