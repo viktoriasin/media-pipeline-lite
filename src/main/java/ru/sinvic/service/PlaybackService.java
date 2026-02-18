@@ -29,8 +29,6 @@ public class PlaybackService {
 
         String sessionId = UUID.randomUUID().toString();
 
-        // Создаем сессию без предварительного выбора качества
-        // HLS.js клиент сам выберет оптимальное качество на основе bandwidth
         PlaybackSession session = new PlaybackSession(
             sessionId,
             content,
@@ -57,7 +55,7 @@ public class PlaybackService {
 
     @Transactional(readOnly = true)
     public PlaybackSession getSession(String sessionId) {
-        return sessionRepository.findBySessionId(sessionId) // TODO: Redis?
+        return sessionRepository.findBySessionId(sessionId)
             .orElseThrow(() -> new SessionNotFoundException("Session not found: " + sessionId));
     }
 }
