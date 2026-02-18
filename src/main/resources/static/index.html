@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #444;
             min-height: 100vh;
             padding: 20px;
         }
@@ -168,7 +168,7 @@
         }
 
         .skip-button:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
         }
 
         .timeline {
@@ -332,8 +332,7 @@
 <body>
 <div class="container">
     <header>
-        <h1>🎬 Media Pipeline Lite</h1>
-        <p class="subtitle">Обучающий HLS стриминг с ABR и QoE аналитикой</p>
+        <h1>Media Pipeline Lite</h1>
     </header>
 
     <div id="contentList" class="content-grid"></div>
@@ -346,24 +345,24 @@
 
         <div style="position: relative;">
             <video id="video" controls></video>
-            <button id="skipButton" class="skip-button" onclick="skipIntro()">Пропустить вступление ⏩</button>
+            <button id="skipButton" class="skip-button" onclick="skipIntro()">Пропустить вступление</button>
         </div>
 
         <div class="quality-selector">
-            <h3>🎬 Качество видео</h3>
+            <h3>Качество видео</h3>
             <div class="quality-buttons">
                 <button class="quality-btn" onclick="setQuality(-1)" id="quality-auto">Auto</button>
                 <button class="quality-btn" onclick="setQuality(480)" id="quality-480">480p</button>
                 <button class="quality-btn" onclick="setQuality(720)" id="quality-720">720p</button>
                 <button class="quality-btn" onclick="setQuality(1080)" id="quality-1080">1080p</button>
-                <button class="quality-btn" onclick="setQuality(2160)" id="quality-2160">2160p (4K)</button>
+                <button class="quality-btn" onclick="setQuality(2160)" id="quality-2160">2160p</button>
             </div>
         </div>
 
         <div class="timeline" id="timeline"></div>
 
         <div class="metrics" id="metrics">
-            <h3>📊 QoE метрики</h3>
+            <h3>QoE метрики</h3>
             <div class="metrics-grid" id="metricsGrid"></div>
         </div>
 
@@ -388,7 +387,7 @@
         container.innerHTML = content.map(item => `
             <div class="content-card" onclick="startPlayback(${item.id}, '${item.title}')">
                 <h3>${item.title}</h3>
-                <p>Длительность: ${Math.floor(item.durationSeconds / 60)} минут</p>
+                <p>Длительность: ${Math.floor(item.durationSeconds / 60)} мин.</p>
             </div>
         `).join('');
     }
@@ -417,13 +416,12 @@
 
     function renderTimeline() {
         const container = document.getElementById('timeline');
-        container.innerHTML = '<h3>📍 Таймлайн</h3>' +
+        container.innerHTML = '<h3>Таймлайн</h3>' +
             currentTimeline.map(event => `
                 <div class="timeline-event ${event.type.toLowerCase()}"
                      onclick="seekTo(${event.startTimeSeconds})">
                     <strong>${event.label}</strong>
                     ${formatTime(event.startTimeSeconds)} - ${formatTime(event.endTimeSeconds)}
-                    ${event.skippable ? ' 🔄' : ''}
                 </div>
             `).join('');
     }
@@ -476,7 +474,6 @@
     function setQuality(levelIndex) {
         if (!hls) return;
 
-        // если -1, то будет автоматическая настройка качества
         if (levelIndex === -1) {
             hls.currentLevel = -1;
         } else {
@@ -486,7 +483,7 @@
                 hls.currentLevel = levelIdx;
             } else {
                 console.warn(`Quality level ${targetHeight}p not available in stream`);
-                return; // Не обновляем кнопки если уровень не найден
+                return;
             }
         }
         updateQualityButtons();
